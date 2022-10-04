@@ -464,7 +464,7 @@ Enter Ctrl+C in each terminal to stop the nodes from spinning
 
 # Creating custom msg and srv files
 
-## 1 Create a ne package
+## 1 Create a new package
 
 Navigate into ros2_ws/src and run the package creation command:
 
