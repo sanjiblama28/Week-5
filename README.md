@@ -280,6 +280,7 @@ But as always, remember to fill up package.xml with the description, maintainer'
 <maintainer email="you@email.com">Your Name</maintainer>
 <license>Apache License 2.0</license>
 ```
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp4.PNG)
 
 ## 1.2 Update (setup.py)
 
@@ -291,6 +292,7 @@ maintainer_email='you@email.com',
 description='Python client server tutorial',
 license='Apache License 2.0',
 ```
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp5.PNG)
 
 ## 2 Write the service node
 
@@ -329,7 +331,6 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 ```
-![image](https://github.com/sanjiblama28/Github/blob/main/sp1.PNG)
 
 ## 2.1 Add an entry point
 
@@ -341,7 +342,7 @@ The following line to be added in between the "console scripts" brackets:
 'service = py_srvcli.service_member_function:main',
 ```
 
-![image](https://github.com/sanjiblama28/Github/blob/main/sp5.PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp6.PNG)
 
 ## 3 Write the client node
 
@@ -405,7 +406,7 @@ entry_points={
 },
 ```
 
-![image](https://github.com/sanjiblama28/Github/blob/main/sp7.PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp7.PNG)
 
 ## 4 Build and Run
 
