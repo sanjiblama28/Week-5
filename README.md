@@ -16,6 +16,8 @@ Navigate into ros2_ws/src/py_pubsub/py_pubsub and by executing the following com
 ```
 wget https://raw.githubusercontent.com/ros2/examples/foxy/rclpy/topics/minimal_publisher/examples_rclpy_minimal_publisher/publisher_member_function.py
 ```
+![image](https://github.com/sanjiblama28/Github/blob/main/sp1.PNG)
+
 A new file called publisher member function.py will now be present next to __init .py.
 Use the text editor of your choice to open the file.
 
@@ -204,6 +206,7 @@ Still in the root of your workspace, ros2_ws, build your new package:
 ```
 colcon build --packages-select py_pubsub
 ```
+![image](https://github.com/sanjiblama28/Github/blob/main/sp2(2).PNG)
 
 Open a new terminal, navigate to ros2_ws, and source the setup files:
 
@@ -226,7 +229,7 @@ Starting in 0.5 seconds, the terminal should begin sending out info messages as 
 [INFO] [minimal_publisher]: Publishing: "Hello World: 4"
 ```
 
-![image](https://user-images.githubusercontent.com/90166739/193401313-a69a23af-fae1-4474-b080-409fca50a5a6.png)
+![image](https://github.com/sanjiblama28/Github/blob/main/sp3.PNG)
 
 Launch a new terminal, once more source the setup files from ros2 ws, and then launch the listener node:
 
@@ -244,7 +247,7 @@ Starting at the publisher's current message count, the listener will begin writi
 [INFO] [minimal_subscriber]: I heard: "Hello World: 14"
 ```
 
-![image](https://user-images.githubusercontent.com/90166739/193401418-6f192b1e-26b6-4b04-84c3-e0da0d6768dd.png)
+![image](https://github.com/sanjiblama28/Github/blob/main/sp4.PNG)
 
 Enter Ctrl+C in each terminal to stop the nodes from spinning
 
