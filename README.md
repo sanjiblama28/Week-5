@@ -74,116 +74,126 @@ Use your text editor to open package.xml, and be sure to complete the descriptio
 
 ![image](https://user-images.githubusercontent.com/90166739/193400425-e84fc324-d121-406d-9ad8-0b89ec2588a3.png)
 
-Add a new line after the ament_cmake buildtool dependency and paste the following dependencies corresponding to your node’s include statements:
+Add the following dependencies following the lines above that match to the import declarations for your node:
 
 ```
-<depend>rclcpp</depend>
-<depend>std_msgs</depend>
+<exec_depend>rclpy</exec_depend>
+<exec_depend>std_msgs</exec_depend>
 ```
 
 ![image](https://user-images.githubusercontent.com/90166739/193400604-116612a9-6e3f-4e3f-9ff9-dd70fc3375e5.png)
 
-This declares the package needs rclcpp and std_msgs when its code is executed.
-Make sure to save the file.
+This declares that when the package's code is executed, rclpy and std msgs are required.
 
-## 2.3 CMakeLists.txt
+Ensure that the file is saved.
 
-Make sure the file looks like following:
+## 2.2 Add an entry point
 
-```
-cmake_minimum_required(VERSION 3.5)
-project(cpp_pubsub)
-
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-
-add_executable(talker src/publisher_member_function.cpp)
-ament_target_dependencies(talker rclcpp std_msgs)
-
-install(TARGETS
-  talker
-  DESTINATION lib/${PROJECT_NAME})
-
-ament_package()
-```
-
-# 3 Write the subscriber node
-
-Return to ros2_ws/src/cpp_pubsub/src to create the next node. Enter the following code in your terminal:
+Check out the setup.py file. Make sure to match the maintainer, maintainer email, description, and license columns to your package.xml once more:
 
 ```
-wget -O subscriber_member_function.cpp https://raw.githubusercontent.com/ros2/examples/foxy/rclcpp/topics/minimal_subscriber/member_function.cpp
+maintainer='YourName',
+maintainer_email='you@email.com',
+description='Examples of minimal publisher/subscriber using rclpy',
+license='Apache License 2.0',
 ```
-
-Entering ls in the console will now return:
-
-```
-publisher_member_function.cpp  subscriber_member_function.cpp
-```
-
-Open the subscriber_member_function.cpp with your text editor.
+Within the console scripts brackets of the entry points field, add the following line:
 
 ```
-#include <memory>
-
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-using std::placeholders::_1;
-
-class MinimalSubscriber : public rclcpp::Node
-{
-  public:
-    MinimalSubscriber()
-    : Node("minimal_subscriber")
-    {
-      subscription_ = this->create_subscription<std_msgs::msg::String>(
-      "topic", 10, std::bind(&MinimalSubscriber::topic_callback, this, _1));
-    }
-
-  private:
-    void topic_callback(const std_msgs::msg::String::SharedPtr msg) const
-    {
-      RCLCPP_INFO(this->get_logger(), "I heard: '%s'", msg->data.c_str());
-    }
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
-};
-
-int main(int argc, char * argv[])
-{
-  rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<MinimalSubscriber>());
-  rclcpp::shutdown();
-  return 0;
-}
+entry_points={
+        'console_scripts': [
+                'talker = py_pubsub.publisher_member_function:main',
+        ],
+},
 ```
+Remember to save.
 
-## 3.2 CMakeLists.txt
+## 2.3 Check setup.cfg
 
-Reopen CMakeLists.txt and add the executable and target for the subscriber node below the publisher’s entries.
+The setup.cfg file should automatically contain the following information:
 
 ```
-add_executable(listener src/subscriber_member_function.cpp)
-ament_target_dependencies(listener rclcpp std_msgs)
+[develop]
+script-dir=$base/lib/py_pubsub
+[install]
+install-scripts=$base/lib/py_pubsub
+```
+Simply instruct setuptools to place your executables in the lib directory, where ros2 run will look for them.
 
-install(TARGETS
-  talker
-  listener
-  DESTINATION lib/${PROJECT_NAME})
+If you wanted to see the entire system in action, you could build your package right now, source the local setup files, and launch it. However, let's first create the subscriber node.
+
+## 3 Write the subscriber node
+
+The next node can be created by going back to ros2 ws/src/py pubsub/py pubsub. Fill out your terminal with the following code:
+
+```
+wget https://raw.githubusercontent.com/ros2/examples/foxy/rclpy/topics/minimal_subscriber/examples_rclpy_minimal_subscriber/subscriber_member_function.py
+```
+Now, the directory must include the following files:
+
+```
+__init__.py  publisher_member_function.py  subscriber_member_function.py
 ```
 
-# 4 Build and Run
+Now, Open the subscriber_member_function.py with your text editor.
 
-It’s good practice to run rosdep in the root of your workspace (ros2_ws) to check for missing dependencies before building:
+```
+import rclpy
+from rclpy.node import Node
+
+from std_msgs.msg import String
+
+
+class MinimalSubscriber(Node):
+
+    def __init__(self):
+        super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(
+            String,
+            'topic',
+            self.listener_callback,
+            10)
+        self.subscription  # prevent unused variable warning
+
+    def listener_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.data)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_subscriber = MinimalSubscriber()
+
+    rclpy.spin(minimal_subscriber)
+
+    # Destroy the node explicitly
+    # (optional - otherwise it will be done automatically
+    # when the garbage collector destroys the node object)
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+## 3.1 Add an entry point
+
+Reopen setup.py and place the subscriber node's entry point beneath the publisher's entry point. Now, the entry points field should be as follows:
+
+```
+entry_points={
+        'console_scripts': [
+                'talker = py_pubsub.publisher_member_function:main',
+                'listener = py_pubsub.subscriber_member_function:main',
+        ],
+},
+```
+Once the file has been saved, your pub/sub system should be operational.
+
+## 4 Build and Run
+
+The rclpy and std msgs packages are probably already installed on your ROS 2 system. Before building, it's best practice to run rosdep in the workspace's root directory (ros2 ws) to check for any missing dependencies:
 
 ```
 rosdep install -i --from-path src --rosdistro foxy -y
@@ -192,7 +202,7 @@ rosdep install -i --from-path src --rosdistro foxy -y
 Still in the root of your workspace, ros2_ws, build your new package:
 
 ```
-colcon build --packages-select cpp_pubsub
+colcon build --packages-select py_pubsub
 ```
 
 Open a new terminal, navigate to ros2_ws, and source the setup files:
@@ -204,8 +214,9 @@ Open a new terminal, navigate to ros2_ws, and source the setup files:
 Now run the talker node:
 
 ```
-ros2 run cpp_pubsub talker
+ros2 run py_pubsub talker
 ```
+Starting in 0.5 seconds, the terminal should begin sending out info messages as follows:
 
 ```
 [INFO] [minimal_publisher]: Publishing: "Hello World: 0"
@@ -217,11 +228,13 @@ ros2 run cpp_pubsub talker
 
 ![image](https://user-images.githubusercontent.com/90166739/193401313-a69a23af-fae1-4474-b080-409fca50a5a6.png)
 
-Open another terminal, source the setup files from inside ros2_ws again, and then start the listener node:
+Launch a new terminal, once more source the setup files from ros2 ws, and then launch the listener node:
 
 ```
-ros2 run cpp_pubsub listener
+ros2 run py_pubsub listener
 ```
+
+Starting at the publisher's current message count, the listener will begin writing messages to the console as follows:
 
 ```
 [INFO] [minimal_subscriber]: I heard: "Hello World: 10"
@@ -235,6 +248,4 @@ ros2 run cpp_pubsub listener
 
 Enter Ctrl+C in each terminal to stop the nodes from spinning
 
-# Summary
 
-You created two nodes to publish and subscribe to data over a topic. Before compiling and running them, you added their dependencies and executables to the package configuration files.
