@@ -74,8 +74,6 @@ Use your text editor to open package.xml, and be sure to complete the descriptio
 <license>Apache License 2.0</license>
 ```
 
-![image](https://user-images.githubusercontent.com/90166739/193400425-e84fc324-d121-406d-9ad8-0b89ec2588a3.png)
-
 Add the following dependencies following the lines above that match to the import declarations for your node:
 
 ```
@@ -83,7 +81,7 @@ Add the following dependencies following the lines above that match to the impor
 <exec_depend>std_msgs</exec_depend>
 ```
 
-![image](https://user-images.githubusercontent.com/90166739/193400604-116612a9-6e3f-4e3f-9ff9-dd70fc3375e5.png)
+![image](https://github.com/sanjiblama28/Github/blob/main/sp5.PNG)
 
 This declares that when the package's code is executed, rclpy and std msgs are required.
 
@@ -108,6 +106,9 @@ entry_points={
         ],
 },
 ```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp6.PNG)
+
 Remember to save.
 
 ## 2.3 Check setup.cfg
@@ -191,6 +192,9 @@ entry_points={
         ],
 },
 ```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp7.PNG)
+
 Once the file has been saved, your pub/sub system should be operational.
 
 ## 4 Build and Run
