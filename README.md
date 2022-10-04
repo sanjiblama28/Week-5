@@ -255,4 +255,209 @@ Starting at the publisher's current message count, the listener will begin writi
 
 Enter Ctrl+C in each terminal to stop the nodes from spinning
 
+# A Simple Service and Client 
+
+## 1 Create a packege
+
+Navigate into ros2_ws/src and run the package creation command:
+
+```
+ros2 pkg create --build-type ament_python py_srvcli --dependencies rclpy example_interfaces
+```
+
+A notification from your terminal confirming the creation of your package py_srvcli and all of its required files and folders will be shown.
+
+## 1.1 Update (package.xml)
+
+You don't need to manually add dependencies to package.xml because you used the —dependencies option when creating the package.
+
+But as always, remember to fill up package.xml with the description, maintainer's name and email, and license details.
+
+```
+<description>Python client server tutorial</description>
+<maintainer email="you@email.com">Your Name</maintainer>
+<license>Apache License 2.0</license>
+```
+
+## 1.2 Update (setup.py)
+
+The maintainer, maintainer email, description, and license fields should all have the following information added to the setup.py file:
+
+```
+maintainer='Your Name',
+maintainer_email='you@email.com',
+description='Python client server tutorial',
+license='Apache License 2.0',
+```
+
+## 2 Write the service node
+
+Create a new file called service_member_function.py in the ros2 ws/src/py_srvcli/py_srvcli directory, and then paste the following code inside:
+
+```
+from example_interfaces.srv import AddTwoInts
+
+import rclpy
+from rclpy.node import Node
+
+
+class MinimalService(Node):
+
+    def __init__(self):
+        super().__init__('minimal_service')
+        self.srv = self.create_service(AddTwoInts, 'add_two_ints', self.add_two_ints_callback)
+
+    def add_two_ints_callback(self, request, response):
+        response.sum = request.a + request.b
+        self.get_logger().info('Incoming request\na: %d b: %d' % (request.a, request.b))
+
+        return response
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_service = MinimalService()
+
+    rclpy.spin(minimal_service)
+
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+![image](https://github.com/sanjiblama28/Github/blob/main/sp1.PNG)
+
+## 2.1 Add an entry point
+
+The entry point must be added to setup.py (found in the ros2 ws/src/py srvcli directory) in order for the ros2 run command to be able to execute your node.
+
+The following line to be added in between the "console scripts" brackets:
+
+```
+'service = py_srvcli.service_member_function:main',
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp5.PNG)
+
+## 3 Write the client node
+
+Create a new file called client_member_function.py in the ros2 ws/src/py_srvcli/py_srvcli directory, and then paste the following code inside:
+
+```
+import sys
+
+from example_interfaces.srv import AddTwoInts
+import rclpy
+from rclpy.node import Node
+
+
+class MinimalClientAsync(Node):
+
+    def __init__(self):
+        super().__init__('minimal_client_async')
+        self.cli = self.create_client(AddTwoInts, 'add_two_ints')
+        while not self.cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.req = AddTwoInts.Request()
+
+    def send_request(self, a, b):
+        self.req.a = a
+        self.req.b = b
+        self.future = self.cli.call_async(self.req)
+        rclpy.spin_until_future_complete(self, self.future)
+        return self.future.result()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_client = MinimalClientAsync()
+    response = minimal_client.send_request(int(sys.argv[1]), int(sys.argv[2]))
+    minimal_client.get_logger().info(
+        'Result of add_two_ints: for %d + %d = %d' %
+        (int(sys.argv[1]), int(sys.argv[2]), response.sum))
+
+    minimal_client.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+## 3.1 Add an entry point
+
+The client node requires an entry point to be added, much like the service node does.
+
+Your setup.py file's entry points column needs to be formatted as follows:
+
+```
+entry_points={
+    'console_scripts': [
+        'service = py_srvcli.service_member_function:main',
+        'client = py_srvcli.client_member_function:main',
+    ],
+},
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp7.PNG)
+
+## 4 Build and Run
+
+To check for missing dependencies before building, it's a good idea to run rosdep in the workspace's root directory (ros2 ws):
+
+```
+rosdep install -i --from-path src --rosdistro foxy -y
+```
+
+Navigate back to the root of your workspace, ros2_ws, and build your new package:
+
+```
+colcon build --packages-select py_srvcli
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp2%20(2).PNG)
+
+Open a new terminal, navigate to ros2_ws, and source the setup files:
+
+```
+. install/setup.bash
+```
+
+Now run the service node:
+
+```
+ros2 run py_srvcli service
+```
+The node will await the request from the client.
+
+Open a new terminal and once more source the setup files from ros2_ws. the client node, any two integers, and a space between them.
+
+```
+ros2 run py_srvcli client 2 3
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp3.PNG)
+
+The client would get a response like this if you selected options 2 and 3 as an example:
+
+```
+[INFO] [minimal_client_async]: Result of add_two_ints: for 2 + 3 = 5
+```
+
+The terminal where your service node is executing should be visited again. When it received the request, as you can see, it published the following log messages:
+
+```
+[INFO] [minimal_service]: Incoming request
+a: 2 b: 3
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sp4.PNG)
+
+Enter Ctrl+C in each terminal to stop the nodes from spinning
+
+
+
 
