@@ -206,7 +206,7 @@ Still in the root of your workspace, ros2_ws, build your new package:
 ```
 colcon build --packages-select py_pubsub
 ```
-![image](https://github.com/sanjiblama28/Github/blob/main/sp2(2).PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/sp2%20(2).PNG)
 
 Open a new terminal, navigate to ros2_ws, and source the setup files:
 
