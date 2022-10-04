@@ -482,7 +482,7 @@ mkdir msg
 mkdir srv
 ```
 
-![image](https://github.com/sanjiblama28/Github/blob/main/ss1.PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/sss1.PNG)
 
 ## 2 Create custom definitions
 
@@ -503,7 +503,7 @@ float64 radius
 ```
 This custom message makes use of a message from a different message package (in this case, geometry msgs/Point).
 
-##2.2 srv definition
+## 2.2 srv definition
 
 Create a new file called AddThreeInts.srv with the following request and response structure back in the tutorial interfaces/srv directory you just made:
 
@@ -515,6 +515,8 @@ int64 c
 int64 sum
 ```
 This is a custom service that accepts three integers with names a, b, and c and returns an answer with the integer sum.
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sss2.PNG)
 
 ## 3 CMakeLists.txt
 
@@ -553,6 +555,8 @@ You may construct your custom interfaces package now that all of its components 
 ```
 colcon build --packages-select tutorial_interfaces
 ```
+![image](https://github.com/sanjiblama28/Github/blob/main/sss3.PNG)
+
 Other ROS 2 programs will now be able to find the interfaces.
 
 ## 6 Confirm msg and srv creation
@@ -597,6 +601,7 @@ int64 c
 ---
 int64 sum
 ```
+![image](https://github.com/sanjiblama28/Github/blob/main/sss4.PNG)
 
 ## 7 Test the new interfaces
 
@@ -737,10 +742,14 @@ ros2 run py_pubsub listener
 
 ```
 
+![image](https://github.com/sanjiblama28/Github/blob/main/sss5.PNG)
+
 ```
 ros2 run py_pubsub listener
 
 ```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/sss7.PNG)
 
 The talker should only be publishing integer values as opposed to the string it previously published as Num.msg only relays an integer:
 
@@ -894,10 +903,13 @@ Then open two new terminals, source ros2_ws in each, and run:
 ros2 run py_srvcli service
 ```
 
+![image](https://github.com/sanjiblama28/Github/blob/main/sss8.PNG)
+
 ```
 ros2 run py_srvcli client 2 3 1
 ```
 
+![image](https://github.com/sanjiblama28/Github/blob/main/sss9.PNG)
 
 
 
