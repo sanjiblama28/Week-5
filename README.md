@@ -1,6 +1,6 @@
 # A Simple Publisher and Subscriber
 
-## 1 Create a packege
+## 1 Create a package
 
 Navigate into ros2_ws/src and run the package creation command:
 
@@ -257,7 +257,7 @@ Enter Ctrl+C in each terminal to stop the nodes from spinning
 
 # A Simple Service and Client 
 
-## 1 Create a packege
+## 1 Create a package
 
 Navigate into ros2_ws/src and run the package creation command:
 
@@ -461,6 +461,460 @@ a: 2 b: 3
 ![image](https://github.com/sanjiblama28/Github/blob/main/ssp1.jpg)
 
 Enter Ctrl+C in each terminal to stop the nodes from spinning
+
+# Creating custom msg and srv files
+
+## 1 Create a ne package
+
+Navigate into ros2_ws/src and run the package creation command:
+
+```
+ros2 pkg create --build-type ament_cmake tutorial_interfaces
+```
+
+A notification from your terminal confirming the creation of your package tutorial_interfaces and all of its required files and folders will be shown. It should be noted that it is a CMake package because pure Python packages cannot yet generate.msg or.srv files. A Python node, which will be discussed in the last part, can use a custom interface that you design in a CMake package.
+
+Maintaining.msg and.srv files in separate locations within a package is excellent practice. In ros2 ws/src/tutorial interfaces, create the directories.
+
+```
+mkdir msg
+
+mkdir srv
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/ss1.PNG)
+
+## 2 Create custom definitions
+
+## 2.1 msg definition 
+
+Create a new file called Num.msg in the tutorial interfaces/msg directory that you just made, then add a single line of code stating the data structure in Num.msg:
+
+```
+int64 num
+```
+This custom message transmits the 64-bit integer num, which is one single value.
+
+Create a new file called Sphere.msg in the tutorial interfaces/msg directory that you just established and fill it with the following information:
+
+```
+geometry_msgs/Point center
+float64 radius
+```
+This custom message makes use of a message from a different message package (in this case, geometry msgs/Point).
+
+##2.2 srv definition
+
+Create a new file called AddThreeInts.srv with the following request and response structure back in the tutorial interfaces/srv directory you just made:
+
+```
+int64 a
+int64 b
+int64 c
+---
+int64 sum
+```
+This is a custom service that accepts three integers with names a, b, and c and returns an answer with the integer sum.
+
+## 3 CMakeLists.txt
+
+Add the following lines to CMakeLists.txt to translate the interfaces you defined into language-specific code (such C++ and Python) so they may be utilized in those languages:
+
+```
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Num.msg"
+  "msg/Sphere.msg"
+  "srv/AddThreeInts.srv"
+  DEPENDENCIES geometry_msgs # Add packages that above messages depend on, in this case geometry_msgs for Sphere.msg
+)
+```
+
+## 4 package.xml
+
+These lines should be added to package.xml.
+
+```
+<depend>geometry_msgs</depend>
+
+<build_depend>rosidl_default_generators</build_depend>
+
+<exec_depend>rosidl_default_runtime</exec_depend>
+
+<member_of_group>rosidl_interface_packages</member_of_group>
+```
+
+## 5 Build the tutorial_interfaces package
+
+You may construct your custom interfaces package now that all of its components are in place. Run the command below in the workspace's root (~/ros2_ws):
+
+```
+colcon build --packages-select tutorial_interfaces
+```
+Other ROS 2 programs will now be able to find the interfaces.
+
+## 6 Confirm msg and srv creation
+
+Run the following command from within your workspace (ros2 ws) to source it in a new terminal:
+
+```
+. install/setup.bash
+```
+
+The ros2 interface show command can now be used to verify that your interface creation was successful:
+
+```
+ros2 interface show tutorial_interfaces/msg/Num
+```
+should return:
+```
+int64 num
+```
+And
+```
+ros2 interface show tutorial_interfaces/msg/Sphere
+```
+should return:
+```
+geometry_msgs/Point center
+        float64 x
+        float64 y
+        float64 z
+float64 radius
+```
+And
+```
+ros2 interface show tutorial_interfaces/srv/AddThreeInts
+```
+should return:
+
+```
+int64 a
+int64 b
+int64 c
+---
+int64 sum
+```
+
+## 7 Test the new interfaces
+
+You can utilize the packages you made in earlier instructions for this step. You may use your new interfaces by making a few straightforward changes to the nodes, CMakeLists, and package files.
+
+## 7.1 Testing Num.msg with pub/sub
+
+You may see Num.msg in action by making a few minor adjustments to the publisher/subscriber package developed in a prior tutorial (C++ or Python). The output will be slightly different because you'll be switching from the default string message to a numerical one.
+
+Publisher:
+
+```
+import rclpy
+from rclpy.node import Node
+
+from tutorial_interfaces.msg import Num    # CHANGE
+
+
+class MinimalPublisher(Node):
+
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(Num, 'topic', 10)     # CHANGE
+        timer_period = 0.5
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
+
+    def timer_callback(self):
+        msg = Num()                                           # CHANGE
+        msg.num = self.i                                      # CHANGE
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%d"' % msg.num)  # CHANGE
+        self.i += 1
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_publisher = MinimalPublisher()
+
+    rclpy.spin(minimal_publisher)
+
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+Subscriber:
+
+```
+import rclpy
+from rclpy.node import Node
+
+from tutorial_interfaces.msg import Num        # CHANGE
+
+
+class MinimalSubscriber(Node):
+
+    def __init__(self):
+        super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(
+            Num,                                              # CHANGE
+            'topic',
+            self.listener_callback,
+            10)
+        self.subscription
+
+    def listener_callback(self, msg):
+            self.get_logger().info('I heard: "%d"' % msg.num) # CHANGE
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_subscriber = MinimalSubscriber()
+
+    rclpy.spin(minimal_subscriber)
+
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+CMakeLists.txt:
+
+Add the following lines (C++ only):
+
+```
+#...
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tutorial_interfaces REQUIRED)                         # CHANGE
+
+add_executable(talker src/publisher_member_function.cpp)
+ament_target_dependencies(talker rclcpp tutorial_interfaces)         # CHANGE
+
+add_executable(listener src/subscriber_member_function.cpp)
+ament_target_dependencies(listener rclcpp tutorial_interfaces)     # CHANGE
+
+install(TARGETS
+  talker
+  listener
+  DESTINATION lib/${PROJECT_NAME})
+
+ament_package()
+```
+
+package.xml:
+
+Add the following line:
+
+```
+<exec_depend>tutorial_interfaces</exec_depend>
+```
+
+After making the above edits and saving all the changes, build the package:
+
+```
+colcon build --packages-select py_pubsub
+```
+On Windows:
+
+```
+colcon build --merge-install --packages-select py_pubsub
+```
+
+Then open two new terminals, source ros2_ws in each, and run:
+
+```
+ros2 run py_pubsub listener
+
+```
+
+```
+ros2 run py_pubsub listener
+
+```
+
+The talker should only be publishing integer values as opposed to the string it previously published as Num.msg only relays an integer:
+
+```
+[INFO] [minimal_publisher]: Publishing: '0'
+[INFO] [minimal_publisher]: Publishing: '1'
+[INFO] [minimal_publisher]: Publishing: '2'
+```
+
+## 7.2 Testing AddThreeInts.srv with service/client
+
+You may use AddThreeInts.srv by making a few minor adjustments to the service/client package developed in a prior tutorial (in C++ or Python). The output will alter significantly because you'll be switching from the initial two integer request srv to a three integer request srv.
+
+Service:
+
+```
+from tutorial_interfaces.srv import AddThreeInts     # CHANGE
+
+import rclpy
+from rclpy.node import Node
+
+
+class MinimalService(Node):
+
+    def __init__(self):
+        super().__init__('minimal_service')
+        self.srv = self.create_service(AddThreeInts, 'add_three_ints', self.add_three_ints_callback)        # CHANGE
+
+    def add_three_ints_callback(self, request, response):
+        response.sum = request.a + request.b + request.c                                                  # CHANGE
+        self.get_logger().info('Incoming request\na: %d b: %d c: %d' % (request.a, request.b, request.c)) # CHANGE
+
+        return response
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_service = MinimalService()
+
+    rclpy.spin(minimal_service)
+
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+Client:
+
+```
+from tutorial_interfaces.srv import AddThreeInts       # CHANGE
+import sys
+import rclpy
+from rclpy.node import Node
+
+
+class MinimalClientAsync(Node):
+
+    def __init__(self):
+        super().__init__('minimal_client_async')
+        self.cli = self.create_client(AddThreeInts, 'add_three_ints')       # CHANGE
+        while not self.cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.req = AddThreeInts.Request()                                   # CHANGE
+
+    def send_request(self):
+        self.req.a = int(sys.argv[1])
+        self.req.b = int(sys.argv[2])
+        self.req.c = int(sys.argv[3])                  # CHANGE
+        self.future = self.cli.call_async(self.req)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    minimal_client = MinimalClientAsync()
+    minimal_client.send_request()
+
+    while rclpy.ok():
+        rclpy.spin_once(minimal_client)
+        if minimal_client.future.done():
+            try:
+                response = minimal_client.future.result()
+            except Exception as e:
+                minimal_client.get_logger().info(
+                    'Service call failed %r' % (e,))
+            else:
+                minimal_client.get_logger().info(
+                    'Result of add_three_ints: for %d + %d + %d = %d' %                               # CHANGE
+                    (minimal_client.req.a, minimal_client.req.b, minimal_client.req.c, response.sum)) # CHANGE
+            break
+
+    minimal_client.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+CMakeLists.txt:
+
+Add the following lines (C++ only):
+
+```
+#...
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tutorial_interfaces REQUIRED)        # CHANGE
+
+add_executable(server src/add_two_ints_server.cpp)
+ament_target_dependencies(server
+  rclcpp tutorial_interfaces)                      #CHANGE
+
+add_executable(client src/add_two_ints_client.cpp)
+ament_target_dependencies(client
+  rclcpp tutorial_interfaces)                      #CHANGE
+
+install(TARGETS
+  server
+  client
+  DESTINATION lib/${PROJECT_NAME})
+
+ament_package()
+```
+
+package.xml:
+
+Add the following line:
+
+```
+<exec_depend>tutorial_interfaces</exec_depend>
+```
+
+After making the above edits and saving all the changes, build the package:
+
+```
+colcon build --packages-select py_srvcli
+```
+
+On Windows:
+
+```
+colcon build --merge-install --packages-select py_srvcli
+```
+
+Then open two new terminals, source ros2_ws in each, and run:
+
+```
+ros2 run py_srvcli service
+```
+
+```
+ros2 run py_srvcli client 2 3 1
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
