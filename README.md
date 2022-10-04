@@ -271,7 +271,7 @@ A notification from your terminal confirming the creation of your package py_srv
 
 ## 1.1 Update (package.xml)
 
-You don't need to manually add dependencies to package.xml because you used the —dependencies option when creating the package.
+You don't need to manually add dependencies to package.xml because you used the --dependencies option when creating the package.
 
 But as always, remember to fill up package.xml with the description, maintainer's name and email, and license details.
 
@@ -388,7 +388,7 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 ```
-![image](https://github.com/sanjiblama28/Github/blob/main/ssp3.PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp3.jpg)
 
 ## 3.1 Add an entry point
 
@@ -421,7 +421,7 @@ Navigate back to the root of your workspace, ros2_ws, and build your new package
 colcon build --packages-select py_srvcli
 ```
 
-![image](https://github.com/sanjiblama28/Github/blob/main/ssp2.PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp2.jpg)
 
 Open a new terminal, navigate to ros2_ws, and source the setup files:
 
@@ -457,7 +457,7 @@ The terminal where your service node is executing should be visited again. When 
 a: 2 b: 3
 ```
 
-![image](https://github.com/sanjiblama28/Github/blob/main/ssp1.PNG)
+![image](https://github.com/sanjiblama28/Github/blob/main/ssp1.jpg)
 
 Enter Ctrl+C in each terminal to stop the nodes from spinning
 
