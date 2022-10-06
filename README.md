@@ -738,7 +738,7 @@ colcon build --merge-install --packages-select py_pubsub
 Then open two new terminals, source ros2_ws in each, and run:
 
 ```
-ros2 run py_pubsub listener
+ros2 run py_pubsub talker
 
 ```
 
