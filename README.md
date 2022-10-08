@@ -1,3 +1,137 @@
+# Using colcon to build packages
+
+## Background
+
+The ROS build tools colcon is an iteration of include catkin make, catkin make isolated, catkin tools, and ament tools.
+
+## Prerequisites
+
+## Install colcon
+
+```
+sudo apt install python3-colcon-common-extensions
+```
+![image](https://github.com/sanjiblama28/Github/blob/main/a1.PNG)
+
+## Install ROS 2
+
+You will require ROS 2 to build the examples.
+
+# Create a workspace
+
+Make a directory called ros2 ws to house our workspace first:
+
+```
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws
+```
+![image](https://github.com/sanjiblama28/Github/blob/main/a2.PNG)
+
+I modified ros2_ws to ros2_ws1 because I had built a workspace and package with a directory named ros2_ws.
+
+Currently, the workspace only has the empty directory src:
+
+```
+.
+└── src
+
+1 directory, 0 files
+```
+
+## Add some sources
+
+Let's clone the examples repository and place it in the workspace's src directory:
+
+```
+git clone https://github.com/ros2/examples src/examples -b foxy
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/a3.PNG)
+
+The source code for the ROS 2 examples should now be in the workspace:
+
+```
+.
+└── src
+    └── examples
+        ├── CONTRIBUTING.md
+        ├── LICENSE
+        ├── rclcpp
+        ├── rclpy
+        └── README.md
+
+4 directories, 3 files
+```
+## Build the workspace
+
+```
+colcon build --symlink-install
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/a4.PNG)
+
+After the build is finished, we should see the build, install, and log directories:
+
+```
+.
+├── build
+├── install
+├── log
+└── src
+
+4 directories, 0 files
+```
+## Run tests
+
+Run the following tests to run the packages we just built:
+
+```
+colcon test
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/a5.PNG)
+
+## Source the environment
+
+```
+. install/setup.bash
+```
+
+## Try a demo
+
+Executables created by Colcon can be run using the environment supplied. Run a subscriber node using the following examples:
+
+```
+ros2 run examples_rclcpp_minimal_subscriber subscriber_member_function
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/a6.PNG)
+
+Let's launch a publisher node in a different terminal (remember to source the setup script):
+
+```
+ros2 run examples_rclcpp_minimal_publisher publisher_member_function
+```
+
+![image](https://github.com/sanjiblama28/Github/blob/main/a7.PNG)
+
+Messages from the publisher and subscriber should appear, their numbers rising.
+
+# Create your own package
+
+## Setup colcon_cd
+
+```
+echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
+echo "export _colcon_cd_root=/opt/ros/foxy/" >> ~/.bashrc
+```
+
+## Setup colcon tab completion
+
+```
+echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
+```
+
 # A Simple Publisher and Subscriber
 
 ## 1 Create a package
